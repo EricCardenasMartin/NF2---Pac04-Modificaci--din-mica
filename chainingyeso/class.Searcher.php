@@ -17,7 +17,7 @@ protected function DefineRelationMap() {
                 "id" => "ID",
                 "paraula" => "Paraula",
                 "total" => "Total",
-                "ultimaVisita" => "UltimaVisita"));
+                "ultimavisita" => "UltimaVisita"));
         }
         
         public function Show(){

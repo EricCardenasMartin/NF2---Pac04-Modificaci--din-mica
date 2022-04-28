@@ -9,16 +9,41 @@
 
     $sql = "
             SELECT id FROM searches
-            WHERE paraula LIKE '" . $_POST["search"] . "%'
-            ORDER BY total DESC
-            LIMIT 5;
+            WHERE paraula = '" . $_POST["search"] . "';
     ";
 
     $arr = $objPDO -> query($sql) -> fetch();
 
-    if($arr != false)
+    if(is_array($arr))
     {
-        echo json_encode($arr);
+        $arr = $arr[0];
+
+        $searcher = new Searcher($objPDO, $arr);
+
+        $searcher   -> SetTotal($searcher -> GetTotal() + 1)
+                    -> SetUltimaVisita(Date('Y-m-d H:m:s'))
+                    -> Save();
+
+        $sql = "
+                SELECT * FROM searches
+                WHERE paraula LIKE '" . $_POST["search"] . "%'
+                ORDER BY total DESC
+                LIMIT 5;
+                ";
+
+        $arr = $objPDO -> query($sql);
+        $i = 0;
+
+        echo "[";
+        while($item = $arr -> fetch()){
+            echo json_encode($item);
+            
+            if($i < $arr -> rowCount() - 1)
+                echo ",";
+
+            $i++;
+        }
+        echo "]";
     }
     else
     {
@@ -26,14 +51,7 @@
 
         $searcher   -> SetParaula($_POST["search"])
                     -> SetTotal(1)
-                    -> SetLastVisit(Date('Y-m-d H:m:s'))
+                    -> SetUltimaVisita(Date('Y-m-d H:m:s'))
                     -> Save();
     }
-
-    /*$searcher = new Searcher($objPDO);
-
-    $searcher   -> SetParaula($_POST["search"])
-                -> Save();
-
-    echo $searcher -> Show();*/
 ?>
